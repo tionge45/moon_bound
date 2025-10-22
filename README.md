@@ -38,7 +38,7 @@ Moon Bound is a minimalistic web game where the player controls a jetpack to rea
 
 1. Clone the repository / Склонируйте репозиторий::
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/tionge45/moon_bound.git
 cd MoonBound
 ````
 
