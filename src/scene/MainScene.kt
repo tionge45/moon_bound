@@ -21,12 +21,12 @@ class MainScene : Scene() {
         }
 
         //player object
-        val player = solidRect(width = 40.0, height = 60.0, color = Colors["00ffcc"]) {
+        val player = solidRect(width = 40.0, height = 60.0, color = Colors["#00ffcc"]) {
             position(500, 668)//should start near bottom
         }
 
         //moon
-        val moon = circle(radius = 30.0, fill = Colors["e0e0e0"]) {
+        val moon = circle(radius = 30.0, fill = Colors["#e0e0e0"]) {
             position(580, 100)
         }
 
