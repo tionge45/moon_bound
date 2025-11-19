@@ -1,3 +1,4 @@
+import game.*
 import korlibs.image.color.*
 import korlibs.korge.*
 import korlibs.korge.scene.*
@@ -9,5 +10,5 @@ suspend fun main() = Korge(
     bgcolor = Colors["#0d0d0d"], // background
     title = "Moon Bound"
 ) {
-    sceneContainer().changeTo { MainScene() }
+    sceneContainer().changeTo { GameScene() }
 }
