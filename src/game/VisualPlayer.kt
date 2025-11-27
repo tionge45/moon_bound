@@ -60,13 +60,15 @@ class VisualPlayer(
     }
 
     fun handleInput() {
-        val keys = stage?.input?.keys ?: emptySet<Key>()
+        val input = stage?.views?.input ?: return
+
         var dx = 0.0
         var dy = 0.0
-        if (Key.LEFT in keys || Key.A in keys) dx -= 1.0
-        if (Key.RIGHT in keys || Key.D in keys) dx += 1.0
-        if (Key.UP in keys || Key.W in keys) dy -= 1.0
-        if (Key.DOWN in keys || Key.S in keys) dy += 1.0
+
+        if (input.keys.pressing(Key.LEFT) || input.keys.pressing(Key.A)) dx -= 1.0
+        if (input.keys.pressing(Key.RIGHT) || input.keys.pressing(Key.D)) dx += 1.0
+        if (input.keys.pressing(Key.UP) || input.keys.pressing(Key.W)) dy -= 1.0
+        if (input.keys.pressing(Key.DOWN) || input.keys.pressing(Key.S)) dy+= 1.0
 
         val len = sqrt(dx * dx + dy * dy)
         moveDirection = if (len > 0.0) Point(dx / len, dy / len) else Point.ZERO
@@ -90,12 +92,6 @@ class VisualPlayer(
     }
 }
 
-private operator fun Any?.contains(left: Key): Boolean {
-    return when(this){
-        is Collection<*> -> this.filterIsInstance<Key>().contains(left)
-        is Key -> this == left
-        else -> false
-    }
 
 
-}
+
