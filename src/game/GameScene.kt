@@ -4,8 +4,10 @@ import korlibs.image.bitmap.*
 import korlibs.image.color.*
 import korlibs.image.format.*
 import korlibs.io.file.std.*
+import korlibs.korge.input.*
 import korlibs.korge.scene.Scene
 import korlibs.korge.view.*
+import korlibs.korge.view.align.*
 import korlibs.time.*
 import models.GameSession
 import models.LevelType
@@ -24,13 +26,37 @@ class GameScene : Scene() {
         val gameLayerContainer = Container().addTo(this)
         val uiLayer = UILayer(this)
 
+        val gameOverContainer = Container().addTo(this).apply {
+            visible = false
+        }
+
+        text("GAME OVER", textSize = 48.0)
+            .addTo(gameOverContainer)
+            .centerXOn(gameOverContainer)
+            .apply { y = 200.0 }
+
+        val restartButton = text("TRY AGAIN?", textSize = 32.0)
+            .addTo(gameOverContainer)
+            .centerXOn(gameOverContainer)
+            .apply { y = 300.0 }
+
+        restartButton.onClick {
+            suspend {
+                sceneContainer.changeTo{ GameScene() }
+
+            }
+
+        }
+
+
         //  initial models
         val playerModel = Player(
             x = 400.0, y = 520.0,
             lives = 3,
             level = LevelType.EASY,
             timeLeft = LevelType.EASY.duration,
-            score = 0
+            score = 0,
+
         )
 
         val session = GameSession(
@@ -39,6 +65,9 @@ class GameScene : Scene() {
             currentLevelType = LevelType.EASY,
             state = GameState.MENU
         )
+
+        //inject session into player model
+        playerModel.session = session
 
         // Engine creation
         val engine = GameEngine(gameLayerContainer, session, uiLayer, backgroundLayer, resourcesVfs["img.png"].readBitmap())
@@ -50,6 +79,10 @@ class GameScene : Scene() {
         // Main update loop
         addUpdater { dt ->
             engine.update(dt.seconds)
+
+            if(session.state == GameState.GAME_OVER){
+                gameOverContainer.visible = true
+            }
         }
 
     }

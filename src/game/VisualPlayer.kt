@@ -16,6 +16,7 @@ import kotlin.math.*
 class VisualPlayer(
     private val model: Player,
     private val uiLayer: UILayer,
+    private val session: GameSession,
     texture: Bitmap
 ) : Container(), Collidable {
 
@@ -60,6 +61,12 @@ class VisualPlayer(
     }
 
     fun handleInput() {
+
+        if(session.state != GameState.RUNNING){
+            moveDirection = Point.ZERO
+            return
+        }
+        
         val input = stage?.views?.input ?: return
 
         var dx = 0.0
@@ -69,6 +76,7 @@ class VisualPlayer(
         if (input.keys.pressing(Key.RIGHT) || input.keys.pressing(Key.D)) dx += 1.0
         if (input.keys.pressing(Key.UP) || input.keys.pressing(Key.W)) dy -= 1.0
         if (input.keys.pressing(Key.DOWN) || input.keys.pressing(Key.S)) dy+= 1.0
+
 
         val len = sqrt(dx * dx + dy * dy)
         moveDirection = if (len > 0.0) Point(dx / len, dy / len) else Point.ZERO
