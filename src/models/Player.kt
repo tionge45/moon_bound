@@ -6,5 +6,6 @@ data class Player(
     var lives: Int = 3,
     var level: LevelType = LevelType.EASY, //DEFAULT,
     var timeLeft : Double = 90.0, //DEFAULT,
-    var score: Int = 0
+    var score: Int = 0,
+    var session: GameSession? = null
 )

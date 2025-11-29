@@ -31,6 +31,7 @@ class GameEngine(
             session.player,
             uiLayer,
             texture = playerTexture,
+        session = session
         )
 
     // spawn control (seconds)
