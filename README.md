@@ -1,7 +1,7 @@
 # Moon Bound 🌙
 
 **A minimalistic 2D web game made in Kotlin using Korge.**  
-**Aim:** Fly your jetpack to the moon while dodging asteroids.
+**Aim:** Fly your avatar to the moon while dodging asteroids.
 
 ---
 
