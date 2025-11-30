@@ -26,6 +26,9 @@ class GameScene : Scene() {
         val gameLayerContainer = Container().addTo(this)
         val uiLayer = UILayer(this)
 
+        val asteroidBitmap = resourcesVfs["asteroid_obstacle.png"].readBitmap()
+
+
         val gameOverContainer = Container().addTo(this).apply {
             visible = false
         }
@@ -69,8 +72,10 @@ class GameScene : Scene() {
         //inject session into player model
         playerModel.session = session
 
+
+
         // Engine creation
-        val engine = GameEngine(gameLayerContainer, session, uiLayer, backgroundLayer, resourcesVfs["img.png"].readBitmap())
+        val engine = GameEngine(gameLayerContainer, session, uiLayer, backgroundLayer, asteroidBitmap, resourcesVfs["img.png"].readBitmap())
 
         //Game starts. State = RUNNING. Engine updates.
         session.state = GameState.RUNNING
