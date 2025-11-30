@@ -23,6 +23,7 @@ class GameEngine(
     private val session: GameSession,
     private val uiLayer: UILayer,
     private val backgroundLayer: BackgroundLayer,
+    private val obstacleTexture: Bitmap,
     private val playerTexture: Bitmap
 ) : Updatable {
 
@@ -46,7 +47,7 @@ class GameEngine(
     init {
         // If session already has obstacles (unlikely on first run), create wrappers
         session.obstacle.forEach { model ->
-            val vo = VisualObstacle(gameContainer, model)
+            val vo = VisualObstacle(gameContainer, model, asteroidBmp = obstacleTexture)
             visualObstacles.add(vo)
         }
 
@@ -119,7 +120,7 @@ class GameEngine(
 
     private fun trySpawnObstacle() {
         // generate obstacle model with random width/size and speed influenced by level
-        val size = Random.nextDouble(24.0, 48.0)
+        val size = Random.nextDouble(24.0, 60.0)
         val speedBase = 100.0 // px per second base
         val speed = speedBase * session.currentLevelType.speedMultiplier * Random.nextDouble(0.8, 1.3)
 
@@ -157,7 +158,7 @@ class GameEngine(
         )
         println("spawn obstacle: x=$xCandidate y=${-size} size=$size speed=$speed")
         session.obstacle.add(obstacleModel)
-        val vo = VisualObstacle(gameContainer, obstacleModel)
+        val vo = VisualObstacle(gameContainer, obstacleModel, obstacleTexture)
         visualObstacles.add(vo)
         println("added VisualObstacle view at ${vo.getBounds()}")
     }
