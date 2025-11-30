@@ -4,6 +4,9 @@ import korlibs.image.color.Colors
 import korlibs.math.geom.Rectangle
 import interfaces.Updatable
 import interfaces.Collidable
+import korlibs.image.bitmap.*
+import korlibs.image.format.*
+import korlibs.io.file.std.*
 import korlibs.korge.view.*
 import models.*
 
@@ -13,20 +16,23 @@ import models.*
  */
 class VisualObstacle(
     parent: Container,
-    val model: Obstacle
+    val model: Obstacle,
+    asteroidBmp: Bitmap
 ) : Updatable, Collidable {
 
     // create a rounded rectangle sized to model.size
-    private val view = parent.solidRect( //temporally using solidRect instead of roundRect
-        model.size, model.size, Colors["#b57530"],
-    ).addTo(parent)
+    //i'llchange this to render an asteroid object from resources later
+    //private val view = parent.solidRect( //temporally using solidRect instead of roundRect
+      //  model.size, model.size, Colors["#b57530"],
+    //).addTo(parent)
 
-    init {
-        view.x = model.x
-        view.y = model.y
-
-
+    private val view = Image(asteroidBmp).addTo(parent).apply {
+        anchor(0.5, 0.5)
+        scale = (model.size / asteroidBmp.width)
+        x = model.x
+        y = model.y
     }
+
 
     override fun update(time: Double) {
         // move according to model speed (model.speed is px per second)
