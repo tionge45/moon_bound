@@ -11,6 +11,7 @@ import korlibs.math.geom.*
 class MainScene : Scene() {
 
     override suspend fun SContainer.sceneMain() {
+        sceneContainer.changeTo<MenuScene>()
         //game world boundaries
         val width = 1024.0
         val height = 768.0
