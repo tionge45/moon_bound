@@ -28,7 +28,10 @@ class VisualObstacle(
 
     private val view = Image(asteroidBmp).addTo(parent).apply {
         anchor(0.5, 0.5)
-        scale = (model.size / asteroidBmp.width)
+        this.scaledWidth = model.size
+        this.scaledHeight = model.size
+        println("OBSTACLE SCALE = ${model.size / asteroidBmp.width}")
+        println("BMP WIDTH = ${asteroidBmp.width}, MODEL SIZE = ${model.size}")
         x = model.x
         y = model.y
     }
@@ -41,7 +44,16 @@ class VisualObstacle(
         view.x = model.x
     }
 
-    override fun getBounds(): Rectangle = Rectangle(view.x, view.y, model.size, model.size)
+    override fun getBounds(): Rectangle {
+        val shrink = model.size * 0.15
+        return Rectangle(
+            view.x + shrink,
+            view.y + shrink,
+            model.size - shrink * 2,
+            model.size - shrink * 2
+        )
+    }
+
 
     override fun onCollision(other: Collidable){
         if (other is VisualPlayer) {
