@@ -3,6 +3,7 @@ package game
 import interfaces.Updatable
 import korlibs.image.bitmap.*
 import korlibs.korge.view.*
+import korlibs.math.geom.*
 import models.*
 import kotlin.math.*
 import kotlin.random.Random
@@ -56,6 +57,14 @@ class GameEngine(
     }
 
 
+    private fun strictIntersects(a: Rectangle, b: Rectangle): Boolean {
+        return a.left < b.right  &&
+            a.right > b.left  &&
+            a.top < b.bottom  &&
+            a.bottom > b.top
+    }
+
+
 
     override fun update(time: Double) {
         if (session.state != GameState.RUNNING) return
@@ -86,7 +95,8 @@ class GameEngine(
         // Collision checks: naive O(n) check against player
         val playerBounds = visualPlayer.getBounds()
         val collided = visualObstacles.firstOrNull { vo ->
-            vo.getBounds().intersects(playerBounds)
+            val ob = vo.getBounds()
+            strictIntersects(ob, playerBounds)
         }
         if (collided != null) {
             // process collision
