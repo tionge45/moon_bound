@@ -3,6 +3,7 @@ package game
 import interfaces.Updatable
 import korlibs.image.bitmap.*
 import korlibs.korge.view.*
+import korlibs.math.geom.*
 import models.*
 import kotlin.math.*
 import kotlin.random.Random
@@ -35,6 +36,7 @@ class GameEngine(
         session = session
         )
 
+
     // spawn control (seconds)
     private var spawnCooldown = 0.0
     private val baseSpawnIntervalSeconds = 0.9 // approx spawn every 0.9s at EASY
@@ -54,6 +56,12 @@ class GameEngine(
         gameContainer.addChild(visualPlayer)
         println("Added visualPlayer to gameContainer; visualPlayer pos=(${visualPlayer.x},${visualPlayer.y})")
 
+    }
+    private fun strictIntersects(a: Rectangle, b: Rectangle): Boolean {
+        return a.left < b.right  &&
+            a.right > b.left  &&
+            a.top < b.bottom  &&
+            a.bottom > b.top
     }
 
 
@@ -84,11 +92,21 @@ class GameEngine(
             }
         }
 
-        // Collision checks: naive O(n) check against player
-        val playerBounds = visualPlayer.getBounds()
-        val collided = visualObstacles.firstOrNull { vo ->
-            vo.getBounds().intersects(playerBounds)
+
+        val collided = visualObstacles.firstOrNull { obstacle ->
+            val playerBounds = visualPlayer.getBounds()
+            val obstacleBounds = obstacle.getBounds()
+
+            val playerCenter = Point(playerBounds.centerX, playerBounds.centerY)
+            val obstacleCenter = Point(obstacleBounds.centerX, obstacleBounds.centerY)
+
+            val playerRadius = min(playerBounds.width, playerBounds.height) / 2.0
+            val obstacleRadius = min(obstacleBounds.width, obstacleBounds.height) / 2.0
+
+            val distance = playerCenter.distanceTo(obstacleCenter)
+            distance < (playerRadius + obstacleRadius)
         }
+
         if (collided != null) {
             // process collision
             visualPlayer.onCollision(other = collided)

@@ -83,7 +83,17 @@ class VisualPlayer(
     }
 
 
-    override fun getBounds(): Rectangle = body.getGlobalBounds()
+    override fun getBounds(): Rectangle {
+        val global = body.getGlobalBounds()
+        val shrink = 6.0  // adjust as needed
+        return Rectangle(
+            global.x + shrink,
+            global.y + shrink,
+            global.width - shrink * 2,
+            global.height - shrink * 2
+        )
+    }
+
 
     //on collision with obstacle
     //checks lives left and updates ui
