@@ -48,25 +48,26 @@ class VisualPlayer(
     }
 
     private fun updateMovement(dt: Double) {
-        val newX = (x + moveDirection.x * moveSpeed * dt)
-            .coerceIn(0.0, stage?.views?.virtualWidth?.toDouble() ?: 800.0)
-        val newY = (y + moveDirection.y * moveSpeed * dt)
-            .coerceIn(0.0, stage?.views?.virtualHeight?.toDouble() ?: 600.0)
+        model.x = x
+        model.y = y
 
-        model.x = newX
-        model.y = newY
+        if (moveDirection != Point.ZERO) {
+            val newX = (x + moveDirection.x * moveSpeed * dt)
+                .coerceIn(0.0, stage?.views?.virtualWidth?.toDouble() ?: 800.0)
+            val newY = (y + moveDirection.y * moveSpeed * dt)
+                .coerceIn(0.0, stage?.views?.virtualHeight?.toDouble() ?: 600.0)
 
-        x = newX
-        y = newY
+            x = newX
+            y = newY
+        }
     }
 
     fun handleInput() {
+        // Reset at beginning
+        moveDirection = Point.ZERO
 
-        if(session.state != GameState.RUNNING){
-            moveDirection = Point.ZERO
-            return
-        }
-        
+        if(session.state != GameState.RUNNING) return
+
         val input = stage?.views?.input ?: return
 
         var dx = 0.0
@@ -75,12 +76,14 @@ class VisualPlayer(
         if (input.keys.pressing(Key.LEFT) || input.keys.pressing(Key.A)) dx -= 1.0
         if (input.keys.pressing(Key.RIGHT) || input.keys.pressing(Key.D)) dx += 1.0
         if (input.keys.pressing(Key.UP) || input.keys.pressing(Key.W)) dy -= 1.0
-        if (input.keys.pressing(Key.DOWN) || input.keys.pressing(Key.S)) dy+= 1.0
+        if (input.keys.pressing(Key.DOWN) || input.keys.pressing(Key.S)) dy += 1.0
 
-
-        val len = sqrt(dx * dx + dy * dy)
-        moveDirection = if (len > 0.0) Point(dx / len, dy / len) else Point.ZERO
+        if (dx != 0.0 || dy != 0.0) {
+            val len = sqrt(dx * dx + dy * dy)
+            moveDirection = Point(dx / len, dy / len)
+        }
     }
+
 
 
     override fun getBounds(): Rectangle {

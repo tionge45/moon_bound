@@ -3,16 +3,20 @@ package game
 import korlibs.image.bitmap.*
 import korlibs.image.color.*
 import korlibs.image.format.*
+import korlibs.io.async.*
 import korlibs.io.file.std.*
 import korlibs.korge.input.*
 import korlibs.korge.scene.Scene
+import korlibs.korge.ui.*
 import korlibs.korge.view.*
 import korlibs.korge.view.align.*
+import korlibs.math.geom.*
 import korlibs.time.*
 import models.GameSession
 import models.LevelType
 import models.Player
 import models.GameState
+import scene.*
 
 /**
  * GameScene: composes the background, engine and UI layers and runs the update loop.
@@ -33,23 +37,47 @@ class GameScene : Scene() {
             visible = false
         }
 
-        text("GAME OVER", textSize = 48.0)
+        text("GAME OVER!", textSize = 48.0)
             .addTo(gameOverContainer)
-            .centerXOn(gameOverContainer)
+            .centerXOnStage()
             .apply { y = 200.0 }
 
-        val restartButton = text("TRY AGAIN?", textSize = 32.0)
-            .addTo(gameOverContainer)
-            .centerXOn(gameOverContainer)
-            .apply { y = 300.0 }
-
-        restartButton.onClick {
-            suspend {
-                sceneContainer.changeTo{ GameScene() }
-
+        val restartBtn = uiButton(size = Size(200, 20)).addTo(gameOverContainer) {
+            text = "RESTART"
+            textSize = 34.0
+            centerXOnStage()
+            y = 320.0
+            onClick {
+                launchImmediately {
+                    sceneContainer.changeTo{GameScene()}
+                }
             }
-
         }
+
+        val exitToMainMenuButton = uiButton(size = Size(250, 20)).addTo(gameOverContainer) {
+            text = "EXIT TO MAIN"
+            textSize = 34.0
+            centerOn(restartBtn)
+            alignTopToBottomOf(restartBtn, padding = 20.0)
+            onClick {
+                launchImmediately {
+                    sceneContainer.changeTo{MenuScene()}
+                }
+            }
+        }
+
+//        val restartButton = uiButton("TRY AGAIN?", size = Size(220, 60))
+//            .addTo(gameOverContainer)
+//            .centerXOn(gameOverContainer)
+//            .apply { y = 300.0 }
+
+//        restartButton.onClick {
+//            suspend {
+//                sceneContainer.changeTo{ GameScene() }
+//
+//            }
+//
+//        }
 
 
         //  initial models
