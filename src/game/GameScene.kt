@@ -120,20 +120,18 @@ class GameScene : Scene() {
 
         lateinit var engine: GameEngine
         // Engine creation
-        val engine = GameEngine(gameLayerContainer,
+        engine = GameEngine(gameLayerContainer,
             session,
             uiLayer,
             backgroundLayer,
             asteroidBitmap,
-            playerBitmap)
-         engine = GameEngine(gameLayerContainer,
-            session, uiLayer, backgroundLayer,
-            asteroidBitmap, resourcesVfs["img.png"].readBitmap(),
-            moonBitmap,  onWin = {
-                launch {
-                    triggerWinSequence(engine)
-                }
-            })
+            playerBitmap, moonBitmap, onWin = {launch {
+                triggerWinSequence(engine)
+            }
+
+            } )
+
+
 
         //Game starts. State = RUNNING. Engine updates.
         session.state = GameState.RUNNING
