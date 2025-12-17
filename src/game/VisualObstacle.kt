@@ -20,11 +20,6 @@ class VisualObstacle(
     asteroidBmp: Bitmap
 ) : Updatable, Collidable {
 
-    // create a rounded rectangle sized to model.size
-    //i'llchange this to render an asteroid object from resources later
-    //private val view = parent.solidRect( //temporally using solidRect instead of roundRect
-      //  model.size, model.size, Colors["#b57530"],
-    //).addTo(parent)
 
     private val view = Image(asteroidBmp).addTo(parent).apply {
         anchor(0.5, 0.5)
