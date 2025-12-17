@@ -2,11 +2,22 @@ package game
 
 import interfaces.Updatable
 import korlibs.image.bitmap.*
+import korlibs.image.color.*
+import korlibs.io.async.*
+import korlibs.korge.tween.*
 import korlibs.korge.view.*
+import korlibs.logger.*
 import korlibs.math.geom.*
+import korlibs.math.geom.Circle
+import korlibs.math.interpolation.*
+import korlibs.time.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 import models.*
+import scene.*
 import kotlin.math.*
 import kotlin.random.Random
+import kotlin.time.*
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -26,15 +37,17 @@ class GameEngine(
     private val backgroundLayer: BackgroundLayer,
     private val obstacleTexture: Bitmap,
     private val playerBitmap:Bitmap
+    private val moonTexture: Bitmap,
+    private val onWin: () -> Unit
 ) : Updatable {
 
-
+    private val visualMoon: VisualMoon = VisualMoon(gameContainer, session, moonTexture)
     private val visualObstacles = mutableListOf<VisualObstacle>()
     private val visualPlayer: VisualPlayer = VisualPlayer(
             session.player,
             uiLayer,
-            texture = playerBitmap,
-        session = session
+            texture = playerTexture,
+            session = session
         )
 
 
@@ -47,6 +60,7 @@ class GameEngine(
     private val screenWidth = 800.0
     private val screenHeight = 600.0
 
+
     init {
         // If session already has obstacles (unlikely on first run), create wrappers
         session.obstacle.forEach { model ->
@@ -58,26 +72,25 @@ class GameEngine(
         println("Added visualPlayer to gameContainer; visualPlayer pos=(${visualPlayer.x},${visualPlayer.y})")
 
     }
-    private fun strictIntersects(a: Rectangle, b: Rectangle): Boolean {
-        return a.left < b.right  &&
-            a.right > b.left  &&
-            a.top < b.bottom  &&
-            a.bottom > b.top
-    }
-
 
 
 
     override fun update(time: Double) {
         if (session.state != GameState.RUNNING) return
 
-        val dt = time.coerceAtMost(0.05) // clamp in case of big frame lags
+        val dt = time.coerceAtMost(0.05)
+        // Update moon (appearance & approach)
+        visualMoon.update(dt)
+
         // update background (gentle star scroll)
         backgroundLayer.update(dt.seconds)
 
         // Update player view (handles input & bounding)
-        // Update player view (handles input & bounding)
         visualPlayer.handleInput()
+
+        checkMoonLanding()
+
+        uiLayer.updateMoonProgress(session.moonApproachProgress)
 
 
         // Update obstacles
@@ -137,6 +150,83 @@ class GameEngine(
             session.state = GameState.GAME_OVER
         }
     }
+
+    private var winSequenceStarted = false
+
+    private fun checkMoonLanding() {
+        if (!winSequenceStarted &&
+            session.isMoonVisible &&
+            session.moonApproachProgress >= 1.0
+        ) {
+            winSequenceStarted = true
+
+            session.state = GameState.WIN
+            session.player.score += 5000
+
+            onWin()
+        }
+    }
+
+    fun snapPlayerToMoon() {
+        val landing = visualMoon.getLandingPoint()
+
+        visualPlayer.x = landing.x
+        visualPlayer.y = landing.y
+    }
+
+
+    fun createWinParticles() {
+        repeat(300) { i ->
+            val color = when (i % 3) {
+                0 -> Colors.GOLD
+                1 -> Colors.CYAN
+                else -> Colors.PINK
+            }
+
+            val particle = gameContainer.circle(
+                radius = 3.0,
+                fill = color
+            )
+
+            val startX = visualPlayer.x + Random.nextDouble(-25.0, 25.0)
+            val startY = visualPlayer.y + Random.nextDouble(-25.0, 25.0)
+
+            particle.position(startX, startY)
+            particle.alpha = 1.0
+            particle.scale = 1.0
+
+            val delay = i * 0.1
+            val duration = 2.0
+
+            var elapsed = 0.0
+            var started = false
+
+            particle.addUpdater { dt->
+                elapsed += dt.seconds
+
+                // Staggered start
+                if (!started) {
+                    if (elapsed < delay) return@addUpdater
+                    started = true
+                    elapsed = 0.0
+                }
+
+                val t = (elapsed / duration).coerceIn(0.0, 1.0)
+
+                // EASE_OUT approximation
+                val eased = 1 - (1 - t) * (1 - t)
+
+                particle.alpha = 1.0 - eased
+                particle.scale = 1.0 - 0.9 * eased
+                particle.y = startY - 100.0 * eased
+
+                if (t >= 1.0) {
+                    particle.removeFromParent()
+                }
+            }
+        }
+    }
+
 
     private fun trySpawnObstacle() {
         // generate obstacle model with random width/size and speed influenced by level

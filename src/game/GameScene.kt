@@ -4,6 +4,7 @@ package game
 
 import korlibs.image.format.*
 import korlibs.io.async.*
+import korlibs.io.async.launch
 import korlibs.io.file.std.*
 import korlibs.korge.input.*
 import korlibs.korge.scene.Scene
@@ -12,6 +13,7 @@ import korlibs.korge.view.*
 import korlibs.korge.view.align.*
 import korlibs.math.geom.*
 import korlibs.time.*
+import kotlinx.coroutines.*
 import models.GameSession
 import models.Player
 import models.GameState
@@ -30,11 +32,17 @@ class GameScene : Scene() {
         val uiLayer = UILayer(this)
 
         val asteroidBitmap = resourcesVfs["asteroid_obstacle.png"].readBitmap()
+        val moonBitmap = resourcesVfs["moon.png"].readBitmap()
 
 
         val gameOverContainer = Container().addTo(this).apply {
             visible = false
         }
+
+        val winGameContainer = Container().addTo(this).apply {
+            visible = false
+        }
+
 
         text("GAME OVER!", textSize = 48.0)
             .addTo(gameOverContainer)
@@ -65,19 +73,25 @@ class GameScene : Scene() {
             }
         }
 
-//        val restartButton = uiButton("TRY AGAIN?", size = Size(220, 60))
-//            .addTo(gameOverContainer)
-//            .centerXOn(gameOverContainer)
-//            .apply { y = 300.0 }
 
-//        restartButton.onClick {
-//            suspend {
-//                sceneContainer.changeTo{ GameScene() }
-//
-//            }
-//
-//        }
+        fun triggerWinSequence(engine: GameEngine) {
+            engine.snapPlayerToMoon()
+            engine.createWinParticles()
 
+            uiLayer.showWinOverlay(
+                onExit = {
+                    views.gameWindow.close()
+                },
+                onMenu = { launch {
+                    sceneContainer.changeTo { MenuScene() }
+                }
+                },
+                onRestart = { launch {
+                    sceneContainer.changeTo { GameScene() }
+                }
+                }
+            )
+        }
 
         val selectedLevel = GameSettings.selectedLevel
 
@@ -104,7 +118,7 @@ class GameScene : Scene() {
         playerModel.session = session
 
 
-
+        lateinit var engine: GameEngine
         // Engine creation
         val engine = GameEngine(gameLayerContainer,
             session,
@@ -112,6 +126,14 @@ class GameScene : Scene() {
             backgroundLayer,
             asteroidBitmap,
             playerBitmap)
+         engine = GameEngine(gameLayerContainer,
+            session, uiLayer, backgroundLayer,
+            asteroidBitmap, resourcesVfs["img.png"].readBitmap(),
+            moonBitmap,  onWin = {
+                launch {
+                    triggerWinSequence(engine)
+                }
+            })
 
         //Game starts. State = RUNNING. Engine updates.
         session.state = GameState.RUNNING
