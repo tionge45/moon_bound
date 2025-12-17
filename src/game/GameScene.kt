@@ -1,7 +1,7 @@
 package game
 
-import korlibs.image.bitmap.*
-import korlibs.image.color.*
+
+
 import korlibs.image.format.*
 import korlibs.io.async.*
 import korlibs.io.async.launch
@@ -15,7 +15,6 @@ import korlibs.math.geom.*
 import korlibs.time.*
 import kotlinx.coroutines.*
 import models.GameSession
-import models.LevelType
 import models.Player
 import models.GameState
 import scene.*
@@ -94,12 +93,16 @@ class GameScene : Scene() {
             )
         }
 
+        val selectedLevel = GameSettings.selectedLevel
+
+
+        val playerBitmap = AvatarLoader.loadSelectedAvatar()
         //  initial models
         val playerModel = Player(
             x = 400.0, y = 520.0,
             lives = 3,
-            level = LevelType.EASY,
-            timeLeft = LevelType.EASY.duration,
+            level = selectedLevel,
+            timeLeft = selectedLevel.duration,
             score = 0,
 
         )
@@ -107,7 +110,7 @@ class GameScene : Scene() {
         val session = GameSession(
             player = playerModel,
             obstacle = mutableListOf(),
-            currentLevelType = LevelType.EASY,
+            currentLevelType = selectedLevel,
             state = GameState.MENU
         )
 
@@ -117,6 +120,12 @@ class GameScene : Scene() {
 
         lateinit var engine: GameEngine
         // Engine creation
+        val engine = GameEngine(gameLayerContainer,
+            session,
+            uiLayer,
+            backgroundLayer,
+            asteroidBitmap,
+            playerBitmap)
          engine = GameEngine(gameLayerContainer,
             session, uiLayer, backgroundLayer,
             asteroidBitmap, resourcesVfs["img.png"].readBitmap(),

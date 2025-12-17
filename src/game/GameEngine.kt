@@ -36,7 +36,7 @@ class GameEngine(
     private val uiLayer: UILayer,
     private val backgroundLayer: BackgroundLayer,
     private val obstacleTexture: Bitmap,
-    private val playerTexture: Bitmap,
+    private val playerBitmap:Bitmap
     private val moonTexture: Bitmap,
     private val onWin: () -> Unit
 ) : Updatable {
@@ -73,7 +73,9 @@ class GameEngine(
 
     }
 
-    override  fun update(time: Double) {
+
+
+    override fun update(time: Double) {
         if (session.state != GameState.RUNNING) return
 
         val dt = time.coerceAtMost(0.05)
@@ -276,5 +278,6 @@ class GameEngine(
     private companion object {
         const val minHorizontalGap = 48.0
     }
+
 
 }
