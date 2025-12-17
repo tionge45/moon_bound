@@ -48,7 +48,12 @@ class MenuScene : Scene() {
             textSize = 28.0
             centerXOn(startBtn)
             alignTopToBottomOf(startBtn, padding = 20.0)
-            onClick { println("Options to be continued lol with the choosing of the rocket ship!") }
+            onClick {
+                launchImmediately {
+                    sceneContainer.changeTo{ OptionsScene() }
+                }
+
+            }
         }
 
         // EXIT

@@ -25,14 +25,15 @@ class GameEngine(
     private val uiLayer: UILayer,
     private val backgroundLayer: BackgroundLayer,
     private val obstacleTexture: Bitmap,
-    private val playerTexture: Bitmap
+    private val playerBitmap:Bitmap
 ) : Updatable {
+
 
     private val visualObstacles = mutableListOf<VisualObstacle>()
     private val visualPlayer: VisualPlayer = VisualPlayer(
             session.player,
             uiLayer,
-            texture = playerTexture,
+            texture = playerBitmap,
         session = session
         )
 
@@ -63,6 +64,7 @@ class GameEngine(
             a.top < b.bottom  &&
             a.bottom > b.top
     }
+
 
 
 
@@ -186,5 +188,6 @@ class GameEngine(
     private companion object {
         const val minHorizontalGap = 48.0
     }
+
 
 }
